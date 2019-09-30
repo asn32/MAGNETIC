@@ -194,8 +194,7 @@ if __name__ == '__main__':
                 print >> OUT, "row_id\t%s" % '\t'.join(h)
                 for i,g in enumerate(labels):
                     print >> OUT, '%s\t%s' % (g, '\t'.join('%.5f' % data[i,j] for j in range(len(h))))
-
-        print 'Finished '+dytpe+' -----------------'
+        print 'Finished -----------------'
     ## for TCGA data store a special 'muts' file, using the process muts function
     if args.source == 'TCGA':
         with open(args.muts) as f:
@@ -212,7 +211,7 @@ if __name__ == '__main__':
                 for g in sorted(muts):
                     print >> OUT, '%s\t%s' % (g, '\t'.join('%d' % int(c in muts[g]) for c in h))
 
-    ## combine all them together
+    ## combine all them together, search with glob for the string "M01_TCGA_*"
     for fn in glob.glob(args.output.format(args.source, '*')):
         with open(fn) as f:
             rdr = csv.reader(f, delimiter='\t')
