@@ -44,6 +44,8 @@ if __name__ == '__main__':
     assert d2 == os.path.splitext(os.path.basename(dat_2))[0].rsplit('_', 2)[1]
     assert d1 <= d2
 
+
+    ## Dat1 contains a memmap-able data-frame. 
     h1,labels1 = read_dtype_file(input_1)
     n_d1 = len(labels1)
     data1 = np.memmap(dat_1, mode='r', dtype=np.float64, shape=(n_d1, len(h1)))

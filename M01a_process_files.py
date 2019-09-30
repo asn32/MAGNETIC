@@ -180,29 +180,39 @@ if __name__ == '__main__':
             else:
                 h = rdr.next()[i:]
 
-            labels,rows = get_rows(rdr, i, j, hgnc_genes, id_map)
+            labels,rows = get_rows(rdr, i, j, hgnc_genes, id_map) ## get_rows --> process rows
+            ## also try and remap the names 
             print dtype, len(h), 'columns',
-            labels,h,data = process_rows(labels, h, rows)
+            labels,h,data = process_rows(labels, h, rows) ## outputs missing values number
             dtype_h[dtype] = set(h)
 
-            with open(args.output.format(args.source, dtype), 'w') as OUT:
+            ## Write to the output file.
+            ## calls string handle as output, modified using format method. 
+            ## outptu filename needs to accept formatting string, for two:
+            ## %s_%s
+            with open(args.output.format(args.source, dtype), 'w') as OUT: ## add column to matrix
                 print >> OUT, "row_id\t%s" % '\t'.join(h)
                 for i,g in enumerate(labels):
                     print >> OUT, '%s\t%s' % (g, '\t'.join('%.5f' % data[i,j] for j in range(len(h))))
 
+        print 'Finished '+dytpe+' -----------------'
+    ## for TCGA data store a special 'muts' file, using the process muts function
     if args.source == 'TCGA':
         with open(args.muts) as f:
             f.readline()
             rdr = csv.DictReader(f, delimiter='\t')
             h,muts = process_muts(rdr, args.mut_cutoff)
 
-            dtype_h['mut'] = set(h)
+            dtype_h['mut'] = set(h) ## for each data-type, store a specific collection of gene 'hashes'
 
+
+            ## Write the method to a unique data-fiile.
             with open(args.output.format(args.source, 'mut'), 'w') as OUT:
                 print >> OUT, 'row_id\t%s' % '\t'.join(h)
                 for g in sorted(muts):
                     print >> OUT, '%s\t%s' % (g, '\t'.join('%d' % int(c in muts[g]) for c in h))
 
+    ## combine all them together
     for fn in glob.glob(args.output.format(args.source, '*')):
         with open(fn) as f:
             rdr = csv.reader(f, delimiter='\t')
@@ -212,6 +222,6 @@ if __name__ == '__main__':
                 data.tofile(OUT)
 
     print 'dtype sample overlaps:'
-    print 'dtype\t%s' % '\t'.join(sorted(dtype_h))
+    print 'dtype\t%s' % '\t'.join(sorted(dtype_h)) ## The names of the data-types
     for d0 in sorted(dtype_h):
         print '%s\t%s' % (d0, '\t'.join('%d' % len(dtype_h[d0] & dtype_h[d1]) for d1 in sorted(dtype_h)))
