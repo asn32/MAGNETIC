@@ -2,6 +2,7 @@
 import argparse
 import csv
 import numpy as np
+import glob
 
 from collections import defaultdict, Counter
 
@@ -37,7 +38,7 @@ def process_muts(rdr, cutoff):
     h = reduce(set.union, muts.values(), set())
     cutoff *= len(h)
     muts = {k:muts[k] for k in muts if len(muts[k]) > cutoff}
-    h2 = sorted(reduce(set.union, muts.values(), set()))
+    h2 = sorted(reduce(set.union, muts.values(), set())) ## Union, not intersection
 
     return h2,muts
 
