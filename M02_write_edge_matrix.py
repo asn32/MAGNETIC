@@ -101,7 +101,7 @@ if __name__ == '__main__':
             n_sub = int(np.round(args.p * data1.shape[1]))
             subsample = np.random.choice(np.arange(data1.shape[1]), replace=False, size=n_sub)
         else:
-            subsample = slice(None)
+            subsample = np.arange(data1.shape[1])  #slice(None)
 
         nz1 = np.any(data1[:, subsample] != 0.0, 1)
         cc = np.corrcoef(data1[np.ix_(nz1, subsample)])
