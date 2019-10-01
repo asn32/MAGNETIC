@@ -216,7 +216,7 @@ if __name__ == '__main__':
         with open(fn) as f:
             rdr = csv.reader(f, delimiter='\t')
             rdr.next()
-            data = np.array([map(float, r[1:]) for r in rdr])
+            data = np.array([map(float, r[1:]) for r in rdr]) ## open the file. 
             with open(fn[:-4] + '.dat', 'w') as OUT:
                 data.tofile(OUT)
 

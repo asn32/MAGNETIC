@@ -10,7 +10,7 @@ def main():
 
     parser.add_argument('--matrix', nargs='+', help='Correlation matrices')
     parser.add_argument('--enrichment_dir', help='Location of enrichment files')
-    parser.add_argument('--i', type=int)
+    parser.add_argument('--i', type=int) ## array
     parser.add_argument('--output_dir')
 
     args = parser.parse_args()
@@ -18,6 +18,7 @@ def main():
     matrix_file = args.matrix[args.i]
     matrix_base = os.path.splitext(os.path.basename(matrix_file))[0]
 
+    ## add positive / negative enrichments to the enrichment-dir
     positive_enrichment_file = os.path.join(
         args.enrichment_dir, '{}_enrichment.txt'.format(matrix_base)
     )
@@ -25,6 +26,7 @@ def main():
         args.enrichment_dir, '{}_negative_enrichment.txt'.format(matrix_base)
     )
 
+    ## add _evalues.dat 
     output_file = os.path.join(
         args.output_dir, '{}_evalues.dat'.format(matrix_base)
     )

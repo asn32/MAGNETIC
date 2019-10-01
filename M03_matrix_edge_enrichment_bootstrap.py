@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--i', type=float)
     parser.add_argument('--max', type=float)
-    parser.add_argument('--n', type=int, default=100000)
+    parser.add_argument('--n', type=int, default=100000) ## Number of bootstraps
 
     parser.add_argument('--j', type=int)
 
@@ -167,6 +167,7 @@ if __name__ == '__main__':
 
     edges = set()
 
+    ## operating on network
     with open(args.network) as f:
         rdr = csv.reader(f, delimiter='\t')
         for row in rdr:

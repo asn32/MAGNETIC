@@ -20,13 +20,13 @@ def read_dtype_file(file_name):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input', nargs='+')
-    parser.add_argument('--labels', nargs='+')
-    parser.add_argument('--output')
-    parser.add_argument('--i', type=int)
-    parser.add_argument('--j', type=int, default=0)
+    parser.add_argument('--input', nargs='+') ## expects 1 or more, .dat files
+    parser.add_argument('--labels', nargs='+') ## expects 1 or more, .tsv 
+    parser.add_argument('--output') ## output string format .format(d1, d2, args.p, args.j),
+    parser.add_argument('--i', type=int) ## combination index to run, "ARRAY_I", repalced with PBS_ARRAYID
+    parser.add_argument('--j', type=int, default=0) ## PBS_ARRAYID
 
-    parser.add_argument('--p', type=float)
+    parser.add_argument('--p', type=float) ## subsample probability 
 
     args = parser.parse_args()
 
@@ -34,22 +34,27 @@ if __name__ == '__main__':
 
     np.random.seed(args.j)
 
+    ## test print statements
+    print args.p
+
+    ## generate every correlation combination (pairwise), but only pick one
     dat_1,dat_2 = list(itertools.combinations_with_replacement(sorted(args.input), 2))[args.i]
     input_1,input_2 = list(itertools.combinations_with_replacement(sorted(args.labels), 2))[args.i]
 
-    d1 = os.path.splitext(os.path.basename(input_1))[0].rsplit('_', 1)[1]
+    d1 = os.path.splitext(os.path.basename(input_1))[0].rsplit('_', 1)[1] ## TCGA_cnv.tsv --> cnv
     d2 = os.path.splitext(os.path.basename(input_2))[0].rsplit('_', 1)[1]
 
     assert d1 == os.path.splitext(os.path.basename(dat_1))[0].rsplit('_', 2)[1]
     assert d2 == os.path.splitext(os.path.basename(dat_2))[0].rsplit('_', 2)[1]
-    assert d1 <= d2
+    assert d1 <= d2 ## assert lexographic ordering of data-types. 
 
 
-    ## Dat1 contains a memmap-able data-frame. 
+    ## Dat1 contains a memmap-able
     h1,labels1 = read_dtype_file(input_1)
     n_d1 = len(labels1)
     data1 = np.memmap(dat_1, mode='r', dtype=np.float64, shape=(n_d1, len(h1)))
 
+    ## check if they come from the same data-type
     if d1 != d2:
         h2,labels2 = read_dtype_file(input_2)
         n_d2 = len(labels2)
@@ -59,21 +64,30 @@ if __name__ == '__main__':
         h1_idx = np.array([(c in h_int) for c in h1])
         h2_idx = np.array([(c in h_int) for c in h2])
 
+        ## they have to be the same shape.
         assert np.array_equal(np.array(h1)[h1_idx], np.array(h2)[h2_idx])
 
         data1 = data1[:, h1_idx]
         data2 = data2[:, h2_idx]
         assert data1.shape[1] == data2.shape[1]
 
-        if args.p < 1.0:
+        if args.p < 1.0: ## random downsampling of COLUMNS
+            ## choosing sampling based on data 1, assumes data1 and data2 share columns in same order
             n_sub = int(np.round(args.p * data1.shape[1]))
             subsample = np.random.choice(np.arange(data1.shape[1]), replace=False, size=n_sub)
         else:
-            subsample = slice(None)
+            subsample = np.arange(data1.shape[1]) #slice(None), bugged 
 
+        
+        ## Index those columns out
+        ## np.any performs logical OR'ing across 1 --> rows
+        ## !=0 --> all nonzero values --> True.  
+        ## !=0 --> remove any rows with all zeroes in them i.e remove any genes that have 0 across the subsample
         nz1 = np.any(data1[:, subsample] != 0.0, 1)
         nz2 = np.any(data2[:, subsample] != 0.0, 1)
 
+
+        ## use nump.ix_ to construct a subset of this
         cc = np.corrcoef(data1[np.ix_(nz1, subsample)],
                          data2[np.ix_(nz2, subsample)])[:nz1.sum(), nz1.sum():]
 
