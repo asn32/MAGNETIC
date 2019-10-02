@@ -74,6 +74,7 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
 
     assert thresholds.shape[0] % 10 == 0
 
+    ## error here 
     das_boot = np.random.randint(0, len(edgelist0), (n_boot, len(edgelist0)))
 
     for i in range(0, thresholds.shape[0], 10):
