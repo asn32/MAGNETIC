@@ -32,7 +32,7 @@ def main():
 
     labels = dict()
     for label_file in args.labels:
-        d1 = os.path.basename(label_file[:-4]).split('_')[2]
+        d1 = os.path.basename(label_file[:-4]).split('_')[1]
         with open(label_file) as f:
             rdr = csv.reader(f, delimiter='\t')
             rdr.next()

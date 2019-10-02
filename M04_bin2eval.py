@@ -46,6 +46,7 @@ def main():
 
     all_evals = [max(neg_enr[0][1], 0.5)]
 
+    ## enforce monotonicity, set to max-value 
     for b,e in neg_enr[1:]:
         all_evals.append(max(e, all_evals[-1]))
     all_evals = all_evals[::-1]
