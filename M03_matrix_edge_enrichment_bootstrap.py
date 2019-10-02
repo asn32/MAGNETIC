@@ -24,7 +24,8 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
     thresholds = np.arange(0, amax, i)
 
     if amax < 0.0:
-        f_e = lambda e,t: (e[...,np.newaxis] <= t).sum(0)
+        ## Take an edge list and a threshold, sum number less than threshold, but t is a 1D array (?)
+        f_e = lambda e,t: (e[...,np.newaxis] <= t).sum(0) ## newaxis adds another dimension to the matrix.
         output_file = os.path.join(output_dir,
                                    os.path.splitext(os.path.basename(input_file))[0] + '_negative_enrichment.txt')
     else:
@@ -49,7 +50,7 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
                           if g0 != g1 and d0_genes[g0] & d0_egenes and d1_genes[g1] & d1_egenes),
                          1000):
         glist = filter(None, glist)
-        if not glist:
+        if not glist: ## If alll the entries are zero 
             continue
 
         len_te += len(glist)
@@ -62,7 +63,7 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
     # convert to list for bootstrapping
     edgelist0 = np.array(list(edges), dtype=int)
 
-    # background rate: [# of network edges] / [# possible edges]
+    # background rate: [# of actual network edges] / [# possible edges]
     bkrd = float(len(edges)) / len_te
 
     counts_boot = np.zeros((3, thresholds.shape[0]))
@@ -77,11 +78,12 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
 
     for i in range(0, thresholds.shape[0], 10):
         # counts: number of network edges above each threshold
+        ## each row is a bootstrap. Number of edges about each threshold. 
         counts = np.zeros((n_boot, 10), dtype=int)
         enrichment = np.zeros_like(counts, dtype=float)
 
         # bootstrap n_boot different edge lists
-        for n in range(n_boot):
+        for n in range(n_boot): 
             edgeboot = das_boot[n, :]
 
             counts[n,:] = f_e(input_data[edgelist0[edgeboot, 0], edgelist0[edgeboot, 1]],
@@ -135,19 +137,20 @@ if __name__ == '__main__':
 
     np.random.seed(args.random_seed)
 
-    input_file = args.input[args.j]
-    d0,d1 = os.path.basename(input_file).split('_')[0].split('-')
-    label_files = {os.path.basename(lf)[:-4].split('_')[2]:lf for lf in args.labels}
+    input_file = args.input[args.j] ## used to index out inputs by which jobarray is running
+    d0,d1 = os.path.basename(input_file).split('_')[0].split('-') ## get data-types for chosen file
+    label_files = {os.path.basename(lf)[:-4].split('_')[1]:lf for lf in args.labels} ## dict mapping data-type to label file
 
     with open(label_files[d0]) as f:
         rdr = csv.reader(f, delimiter='\t')
         rdr.next()
-        d0_genes = [row[0] for row in rdr]
+        d0_genes = [row[0] for row in rdr] ## get the first column
         assert d0_genes == sorted(d0_genes)
 
-        d0_genes_d = defaultdict(set)
+        d0_genes_d = defaultdict(set) ## genes is a directory, but you can append entries to an existing entry directly 
+        ## i.e if d[0]=a:[a,b,c], then d[0].append(f) --> d[0] = a:[a,b,c,f]
         for i,g in enumerate(d0_genes):
-            d0_genes_d[g.split('_')[0]].add(i)
+            d0_genes_d[g.split('_')[0]].add(i) ## split on underscores i.e if "i" is >1 position only count unique entries
         # d0_genes = {g:i for i,g in enumerate(sorted(d0_genes))}
 
     if d0 != d1:
@@ -172,11 +175,17 @@ if __name__ == '__main__':
         rdr = csv.reader(f, delimiter='\t')
         for row in rdr:
             if args.network_threshold == 0.0 or float(row[2]) >= args.network_threshold:
-                assert row[0] != row[1]
-                if row[0] in d0_genes_d and row[1] in d1_genes_d:
+                ## If network above threshold 
+                assert row[0] != row[1] ## check for self-linking node.
+
+
+                if row[0] in d0_genes_d and row[1] in d1_genes_d: ## If the gene in the network is found in the data-set
                     # edges.add((d0_genes[row[0]], d1_genes[row[1]]))
+
+                    ## Index the gene dictionary by the gene in the network, get the mapped gene in the data
+                    ## get the itertool product of it. and add it to the set as a tuple, returns numbers not characters
                     edges.update(itertools.product(d0_genes_d[row[0]], d1_genes_d[row[1]]))
-                if row[1] in d0_genes_d and row[0] in d1_genes_d:
+                if row[1] in d0_genes_d and row[0] in d1_genes_d: ## do the opposite of the edges are reversed
                     # edges.add((d0_genes[row[1]], d1_genes[row[0]]))
                     edges.update(itertools.product(d0_genes_d[row[1]], d1_genes_d[row[0]]))
 
