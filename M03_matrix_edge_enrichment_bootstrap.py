@@ -62,6 +62,7 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
 
     # convert to list for bootstrapping
     edgelist0 = np.array(list(edges), dtype=int)
+    print edgelist0.shape
 
     # background rate: [# of actual network edges] / [# possible edges]
     bkrd = float(len(edges)) / len_te
@@ -75,27 +76,38 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
     assert thresholds.shape[0] % 10 == 0
 
     ## error here 
-    das_boot = np.random.randint(0, len(edgelist0), (n_boot, len(edgelist0)))
+    das_boot = np.random.randint(0, len(edgelist0), (n_boot, len(edgelist0))) ## A matrix, rows are resamples, columns are edges 
+    ## nboot x len(edgelest) --> 100,000 x 60,193 --> 48.2 gb memory 
 
-    for i in range(0, thresholds.shape[0], 10):
+    for i in range(0, thresholds.shape[0], 10): ## step by 10s, i.e in batches of 10
         # counts: number of network edges above each threshold
         ## each row is a bootstrap. Number of edges about each threshold. 
-        counts = np.zeros((n_boot, 10), dtype=int)
-        enrichment = np.zeros_like(counts, dtype=float)
+        counts = np.zeros((n_boot, 10), dtype=int) ## counts --> 10 columns, n_bootstraps, 10 at a time
+        enrichment = np.zeros_like(counts, dtype=float) ## equivalent number of zeroes
 
         # bootstrap n_boot different edge lists
-        for n in range(n_boot): 
-            edgeboot = das_boot[n, :]
+        for n in range(n_boot):  ## for each bootstrap
+            edgeboot = das_boot[n, :] ## get the edge boot list
+            
 
+            ## apply the counting function
             counts[n,:] = f_e(input_data[edgelist0[edgeboot, 0], edgelist0[edgeboot, 1]],
                               thresholds[i:i+10]).astype(float)
 
-        counts_boot[:, i:i+10] = np.vstack(np.percentile(counts, (2.5, 50.0, 97.5), 0))
 
-        tci = total_counts[i:i+10] > 0
-        enrichment[:, tci] = (counts[:, tci] / total_counts[i:i+10][tci]) / bkrd
+        ## for each threshold 
+        ## colate the bootstrap results into distributions
+        counts_boot[:, i:i+10] = np.vstack(np.percentile(counts, (2.5, 50.0, 97.5), 0)) ## stack into matrix for eahc booth
 
-        enrich_boot[:, i:i+10] = np.vstack(np.percentile(enrichment, (2.5, 50.0, 97.5), 0))
+
+       
+        tci = total_counts[i:i+10] > 0 ## generate an index based on total_counts: same dimensions as threshold aka
+        ## an arange --> it's all zeroes when its generated though "zero_like"
+
+
+        enrichment[:, tci] = (counts[:, tci] / total_counts[i:i+10][tci]) / bkrd ## calculate enrichment by dividing by background
+
+        enrich_boot[:, i:i+10] = np.vstack(np.percentile(enrichment, (2.5, 50.0, 97.5), 0)) ## median is 50% percentile
         enrich_mean[i:i+10] = enrichment.mean(0)
         enrich_std[i:i+10] = enrichment.std(0)
 
