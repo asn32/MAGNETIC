@@ -20,7 +20,7 @@ def main():
 
     parser.add_argument('input', nargs="+")
     parser.add_argument('--labels', nargs="+")
-    parser.add_argument('--output')
+    parser.add_argument('--output') ## directory of output
 
     parser.add_argument('--power', type=float, default=1.0)
     parser.add_argument('--cutoff', type=float, default=0.0)
@@ -30,34 +30,42 @@ def main():
 
     args = parser.parse_args()
 
+    project = os.path.basename(args.labels[0][:-4]]).split('_')[0]
+
     labels = dict()
     for label_file in args.labels:
-        d1 = os.path.basename(label_file[:-4]).split('_')[1]
+        d1 = os.path.basename(label_file[:-4]).split('_')[1] ## get the data-type
         with open(label_file) as f:
             rdr = csv.reader(f, delimiter='\t')
             rdr.next()
             labels[d1] = {r[0]:i for i,r in enumerate(rdr)}
 
-    label_u = sorted(reduce(set.union, labels.values(), set()))
+    label_u = sorted(reduce(set.union, labels.values(), set())) ## find the union of all genes
 
     mmaps = dict()
-    for input_file in args.input:
-        d1,d2 = os.path.basename(input_file).split('_')[0].split('-')
+    for input_file in args.input: ## expects multiple files 
+        d1,d2 = os.path.basename(input_file).split('_')[0].split('-') ## gets d1-d2_ info
 
-        mmaps[(d1,d2)] = np.memmap(input_file, dtype=np.float64,
+        mmaps[(d1,d2)] = np.memmap(input_file, dtype=np.float64, ## reads e_value matrix in to memmap format
                                    mode='r', shape=(len(labels[d1]), len(labels[d2])))
 
-    dtypes = list(enumerate(sorted(reduce(set.union, mmaps, set()))))
 
-    with gzip.open(args.output, 'w') as OUT:
+        ## creates map between data-type pair and enrichment matrix (e_values), reads enrichment matrix as memmap
+
+    dtypes = list(enumerate(sorted(reduce(set.union, mmaps, set())))) ## find set of data-types
+
+    ## set the new output file as the info + the project id name
+    output_file_path = os.path.join(args.output,project+'_'+args.format+'_'+args.cutoff+'.txt.gz')
+
+    with gzip.open(output_file_path, 'w') as OUT:
         if args.format == 'multiplex':
             print >> OUT, '*Vertices {:d}'.format(len(label_u))
             print >> OUT, '\n'.join('{:d} "{}"'.format(i,g) for i,g in enumerate(label_u))
             print >> OUT, '*Multiplex'
 
-        for g1g2 in grouper(itertools.combinations(enumerate(label_u), 2), 10000):
+        for g1g2 in grouper(itertools.combinations(enumerate(label_u), 2), 10000): ## consider all data-combinations
             lines = []
-            for (i1,g1),(i2,g2) in itertools.ifilter(None, g1g2):
+            for (i1,g1),(i2,g2) in itertools.ifilter(None, g1g2): 
                 pair_edges = []
                 for (j1,d1),(j2,d2) in itertools.product(dtypes, dtypes):
                     if g1 in labels[d1] and g2 in labels[d2]:

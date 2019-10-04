@@ -39,6 +39,8 @@ def main():
         neg_enr = [(float(row['Bin']), float(row['Enrichment_median']))
                    for row in csv.DictReader(f, delimiter='\t')]
 
+    print "Loaded enrichment files"
+
     assert [b for b,e in pos_enr] == sorted([b for b,e in pos_enr])
     assert [b for b,e in neg_enr] == sorted([b for b,e in neg_enr], reverse=True)
 
@@ -61,6 +63,8 @@ def main():
 
     input_data = np.fromfile(matrix_file, dtype=np.float64)
 
+    print "Loaded correlation matrix"
+    
     for i in xrange(input_data.size):
         if input_data[i] < 0.0:
             input_data[i] = d_evalues[(bins < input_data[i]).sum()]
