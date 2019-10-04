@@ -30,7 +30,7 @@ def main():
 
     args = parser.parse_args()
 
-    project = os.path.basename(args.labels[0][:-4]]).split('_')[0]
+    project = os.path.basename(args.labels[0][:-4]).split('_')[0]
 
     labels = dict()
     for label_file in args.labels:
