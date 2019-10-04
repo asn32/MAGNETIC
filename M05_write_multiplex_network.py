@@ -55,7 +55,7 @@ def main():
     dtypes = list(enumerate(sorted(reduce(set.union, mmaps, set())))) ## find set of data-types
 
     ## set the new output file as the info + the project id name
-    output_file_path = os.path.join(args.output,project+'_'+args.format+'_'+args.cutoff+'.txt.gz')
+    output_file_path = os.path.join(args.output,project+'_'+args.format+'_'+str(args.cutoff)+'.txt.gz')
 
     with gzip.open(output_file_path, 'w') as OUT:
         if args.format == 'multiplex':
