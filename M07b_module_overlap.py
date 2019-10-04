@@ -14,6 +14,7 @@ import numpy as np
 from S00_common_io import read_infomap_clusters
 
 
+## Use networkX subgraph to identify the how much of the subgraph of cluster can be found in refGraph
 def mp_network_overlap(input):
     scp,n,c,graph,cluster = input
 
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with open(args.labels) as f:
-        genes = [line.strip() for line in f]
+        genes = [line.strip() for line in f] ## the lable file is a special file 
 
     if args.random:
         np.random.seed(args.random_seed)
@@ -57,16 +58,21 @@ if __name__ == '__main__':
                          if (not args.cutoff) or float(row[2]) >= args.cutoff)
 
     node_set = set(G.nodes()).intersection(genes)
-    G = G.subgraph(node_set)
+    G = G.subgraph(node_set) ## shrink it down to the relevant genes 
 
     cluster_overlap = defaultdict(dict)
     cluster_size = defaultdict(dict)
 
+    ## File name regex. FNRE output_.../...pow>..relax..tree
     fnre = re.compile(r'^.+output_([0-9]+)/.+_([.0-9]+)(?:_pow([0-9]+))?(?:_relax([.0-9]+))?\.tree$', re.I)
     gre = lambda fn: '\t'.join(g or '1' for g in fnre.match(fn).groups())
 
+
+    ## batch processing of clusters
     cluster_list = [(gre(fn), read_infomap_clusters(fn, genes, deepest=True, random=args.random))
                     for fn in sorted(args.clusters)[args.i::args.proc]]
+
+
     mjobs = [(scp, len(clusters), c, G, clusters[c] & node_set)
              for scp,clusters in cluster_list for c in clusters]
 

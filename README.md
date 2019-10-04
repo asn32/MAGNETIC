@@ -47,6 +47,9 @@ I'm naming all the Python scripts as they are used. When something is run on the
   * A lot of module scores are highly correlated, even though they are not connected by any edges.
   * Our solution to this was just to merge all modules that correlate at a high level&mdash;I calculated all-by-all correlation of the module scores and merged anything that was in the top 0.5% of correlations.
   * After doing this, I have to calculate the module scores again as in step 9.
+
+
+  
 11. Module analysis 0: Identifying/annotating modules
   * There isn't one right way to do this&mdash;we've used gene-enrichment tools and done correlation/ANOVA against clinical covariates try to figure out what the modules mean.
   * Another likely annotation is amplicons: I check to see whether a module is all or mostly in a single genomic area. The majority of the BRCA modules were amplicons of some kind. This is less common in LUAD though.

@@ -24,17 +24,17 @@ def get_overlap(G, input_network, genes, random=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input_network', nargs='*')
+    parser.add_argument('--input_network', nargs='*') 
 
-    parser.add_argument('--labels')
+    parser.add_argument('--labels') ## label files, for genes / data-type
 
-    parser.add_argument('--network')
-    parser.add_argument('--cutoff', type=float, default=2.0)
+    parser.add_argument('--network') ## the default network (HumanNet)
+    parser.add_argument('--cutoff', type=float, default=2.0) ## Cutoff used in generating test-network
 
     parser.add_argument('--random', action='store_true')
     parser.add_argument('--random_seed', type=int, default=0)
 
-    parser.add_argument('--i', type=int)
+    parser.add_argument('--i', type=int) ## PBS_ARRAYID
 
     args = parser.parse_args()
 

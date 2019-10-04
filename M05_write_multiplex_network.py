@@ -54,16 +54,21 @@ def main():
 
     dtypes = list(enumerate(sorted(reduce(set.union, mmaps, set())))) ## find set of data-types
 
+   
+    ## gene to index mapping file generate, using labels_u
+    output_label_path = os.path.join(args.output,project+'_'+args.format+'_'+str(args.cutoff)+'labels.txt')
+    with open(output_label_path,'w') as OUT:
+        print >> OUT, '\n'.join('{:d} "{}"'.format(i,g) for i,g in enumerate(label_u))
+
     ## set the new output file as the info + the project id name
     output_file_path = os.path.join(args.output,project+'_'+args.format+'_'+str(args.cutoff)+'.txt.gz')
-
     with gzip.open(output_file_path, 'w') as OUT:
         if args.format == 'multiplex':
             print >> OUT, '*Vertices {:d}'.format(len(label_u))
             print >> OUT, '\n'.join('{:d} "{}"'.format(i,g) for i,g in enumerate(label_u))
             print >> OUT, '*Multiplex'
 
-        for g1g2 in grouper(itertools.combinations(enumerate(label_u), 2), 10000): ## consider all data-combinations
+        for g1g2 in grouper(itertools.combinations(enumerate(label_u), 2), 10000): ## consider all data-combinations, chunked in 10K
             lines = []
             for (i1,g1),(i2,g2) in itertools.ifilter(None, g1g2): 
                 pair_edges = []
