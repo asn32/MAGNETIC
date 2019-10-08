@@ -27,14 +27,19 @@ if __name__ == '__main__':
 
     clusters = []
 
+    ## parse and generate the clusters
     for input_file in args.clusters:
         cs = read_infomap_clusters(input_file, genes, deepest=True)
-        clusters.append({c:cs[c] for c in cs if len(cs[c]) >= args.min_size})
+        clusters.append({c:cs[c] for c in cs if len(cs[c]) >= args.min_size}) ## filter the clusters based on minsize
 
+
+    ## store a unique cluster dictionary for each cluster in a list
+    ## sort the gene names, get the uniques. 
     clustered_genes = sorted({g for cs in clusters for c in cs for g in cs[c]})
 
-    print len(clustered_genes)
+    print len(clustered_genes) ## print out how many 
 
+    ## set up a gene dictionary between index and lexical sort 
     gene_d = {g:i for i,g in enumerate(clustered_genes)}
 
     nc2 = lambda n: n * (n - 1) / 2 # n-choose-2 function
@@ -43,6 +48,8 @@ if __name__ == '__main__':
 
     gene_m = np.zeros(gc2, dtype=float)
 
+    ## for each cluster for each gene in teh combinations , add a count. 
+    ## i.e how often does a gene co cluster
     for cs in clusters:
         for c in cs:
             for g1,g2 in itertools.combinations(sorted(cs[c]), 2):
@@ -50,10 +57,11 @@ if __name__ == '__main__':
 
     gene_m /= len(clusters)
 
+    ## 
     gene_m = sdist.squareform(gene_m)
     gene_m += np.eye(gene_m.shape[0])
 
-    with open(args.output + '.mat', 'w') as OUT:
+    with open(args.output + '_co-occur_freq.mat', 'w') as OUT:
         gene_m.tofile(OUT)
 
     with open(args.output + '_genes.txt', 'w') as OUT:
