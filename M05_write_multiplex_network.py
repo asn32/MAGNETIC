@@ -44,10 +44,12 @@ def main():
 
     mmaps = dict()
     for input_file in args.input: ## expects multiple files 
-        d1,d2 = os.path.basename(input_file).split('_')[0].split('-') ## gets d1-d2_ info
+        d1,d2 = os.path.basename(input_file).split('_')[0].split('-') ## gets d1-d2_ info ## but this should be the set of labels in each matrix
 
         mmaps[(d1,d2)] = np.memmap(input_file, dtype=np.float64, ## reads e_value matrix in to memmap format
                                    mode='r', shape=(len(labels[d1]), len(labels[d2])))
+                                   ## potentially problematic, given that len(labels[d1]) and len(labels[d2]) are
+                                   ## the wrong dimension. it should be a symmetric e-value matrix. 
 
 
         ## creates map between data-type pair and enrichment matrix (e_values), reads enrichment matrix as memmap
@@ -56,9 +58,9 @@ def main():
 
    
     ## gene to index mapping file generate, using labels_u
-    output_label_path = os.path.join(args.output,project+'_'+args.format+'_'+str(args.cutoff)+'labels.txt')
+    output_label_path = os.path.join(args.output,project+'_'+args.format+'_'+str(args.cutoff)+'_labels.txt')
     with open(output_label_path,'w') as OUT:
-        print >> OUT, '\n'.join('{:d} "{}"'.format(i,g) for i,g in enumerate(label_u))
+        print >> OUT, '\n'.join('{}'.format(g) for g in label_u)
 
     ## set the new output file as the info + the project id name
     output_file_path = os.path.join(args.output,project+'_'+args.format+'_'+str(args.cutoff)+'.txt.gz')
@@ -72,7 +74,7 @@ def main():
             lines = []
             for (i1,g1),(i2,g2) in itertools.ifilter(None, g1g2): 
                 pair_edges = []
-                for (j1,d1),(j2,d2) in itertools.product(dtypes, dtypes):
+                for (j1,d1),(j2,d2) in itertools.product(dtypes, dtypes): ## get data-type combinations
                     if g1 in labels[d1] and g2 in labels[d2]:
                         if j1 <= j2:
                             e = mmaps[(d1,d2)][labels[d1][g1], labels[d2][g2]]

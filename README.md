@@ -31,7 +31,7 @@ I'm naming all the Python scripts as they are used. When something is run on the
   * Because it has a stochastic component, I run it many times and calculate a consensus clustering once I've chosen the best parameters.
 7. Picking a threshold based on enrichment
   * `network_overlap.py` (on cluster) takes a directory of Infomap outputs (not the consensus) as well as a known network (e.g. HumanNet) and calculates the enrichment for known edges in the identified modules.
-    * This value is corrected for the inherent enrichment of a network at a given threshold
+    * This value is corrected for the inherent enrichment of a network at a given threshold *(Is this the n/choose2)
     * The script takes a --random argument to compute the background distribution
   * `combine_neto_files.py` and `plot_network_overlap.py` are scripts for processing the output, and make a bar plot of enrichment. I picked a threshold where it seemed to level off.
 8. Consensus Infomap modules

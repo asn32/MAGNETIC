@@ -60,8 +60,8 @@ if __name__ == '__main__':
         n_d2 = len(labels2)
         data2 = np.memmap(dat_2, mode='r', dtype=np.float64, shape=(n_d2, len(h2)))
 
-        h_int = set(h1) & set(h2)
-        h1_idx = np.array([(c in h_int) for c in h1])
+        h_int = set(h1) & set(h2) ## get the gene intersection, not alpha sorted, just used as reference
+        h1_idx = np.array([(c in h_int) for c in h1]) ## get logical index for genes 
         h2_idx = np.array([(c in h_int) for c in h2])
 
         ## they have to be the same shape.
@@ -70,6 +70,9 @@ if __name__ == '__main__':
         data1 = data1[:, h1_idx]
         data2 = data2[:, h2_idx]
         assert data1.shape[1] == data2.shape[1]
+
+        ## shrinks data -down to shared size. So thing to check for is whether there's an interseciton step.
+        ## for each data-indexing
 
         if args.p < 1.0: ## random downsampling of COLUMNS
             ## choosing sampling based on data 1, assumes data1 and data2 share columns in same order

@@ -39,6 +39,7 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
     n_d0 = sum(len(v) for v in d0_genes.values())
     n_d1 = sum(len(v) for v in d1_genes.values())
     input_data = np.fromfile(input_file, dtype=np.float64).reshape((n_d0, n_d1))
+    ## this line could be problematic. Since not all genes make it through to the input file, which is the Corr. mat
 
     d0_egenes = {g0 for g0,g1 in edges}
     d1_egenes = {g1 for g0,g1 in edges}
@@ -75,7 +76,7 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
 
     assert thresholds.shape[0] % 10 == 0
 
-    ## error here 
+    ## memory error here , need ~ 100gb or more depending.
     das_boot = np.random.randint(0, len(edgelist0), (n_boot, len(edgelist0))) ## A matrix, rows are resamples, columns are edges 
     ## nboot x len(edgelest) --> 100,000 x 60,193 --> 48.2 gb memory 
 
@@ -193,10 +194,11 @@ if __name__ == '__main__':
 
 
                 if row[0] in d0_genes_d and row[1] in d1_genes_d: ## If the gene in the network is found in the data-set
-                    # edges.add((d0_genes[row[0]], d1_genes[row[1]]))
+                    # edges.add((d0_genes[row[0]], d1_genes[row[1]])) ## effectively a intersection filter
 
                     ## Index the gene dictionary by the gene in the network, get the mapped gene in the data
                     ## get the itertool product of it. and add it to the set as a tuple, returns numbers not characters
+                    ## each tuple contains an index into the data matrix
                     edges.update(itertools.product(d0_genes_d[row[0]], d1_genes_d[row[1]]))
                 if row[1] in d0_genes_d and row[0] in d1_genes_d: ## do the opposite of the edges are reversed
                     # edges.add((d0_genes[row[1]], d1_genes[row[0]]))

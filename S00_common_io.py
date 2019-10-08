@@ -143,7 +143,7 @@ def read_infomap_clusters(input_file, genes, deepest=False, random=False):
         f.readline()
         rows = [line.strip().split() for line in f]
 
-    rows2 = [(tuple(row[0].split(':')), int(row[3])) for row in rows]
+    rows2 = [(tuple(row[0].split(':')), int(row[3])) for row in rows[1:]] ## added 1: to avoid file header
 
     n_levels = max(len(r[0]) for r in rows2)
 

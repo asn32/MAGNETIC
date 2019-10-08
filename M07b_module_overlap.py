@@ -76,7 +76,7 @@ if __name__ == '__main__':
     mjobs = [(scp, len(clusters), c, G, clusters[c] & node_set)
              for scp,clusters in cluster_list for c in clusters]
 
-    mjobs = [cgc for cgc in mjobs if len(cgc[4])]
+    mjobs = [cgc for cgc in mjobs if len(cgc[4])] ## filter out any entries where total testable nodes is 0
 
     res = map(mp_network_overlap, mjobs)
 
