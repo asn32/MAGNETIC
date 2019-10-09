@@ -77,7 +77,7 @@ def main():
             input_data[i] = zero_val ## otherwise assign it the '0' enrichment score.
 
     with open(output_file, 'wb') as OUT:
-        input_data.tofile(OUT)
+        input_data.tofile(OUT) ## write it out as a linear array
 
 if __name__ == '__main__':
     main()
