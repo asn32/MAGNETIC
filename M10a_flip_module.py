@@ -131,7 +131,7 @@ if __name__ == '__main__':
             h = rdr.next()[1:]
             rows = list(rdr)
 
-        lbls = [row[0] for row in rows]
+        lbls = [row[0] for row in rows] ## get label files
 
         urows = dict()
         rrows = []

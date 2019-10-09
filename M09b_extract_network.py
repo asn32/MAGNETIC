@@ -61,5 +61,7 @@ if __name__ == '__main__':
                         if e > args.cutoff:
                             output_edges.append((g2, g1, e, '{}-{}'.format(d2,d1)))
 
-        with open(os.path.join(args.output_dir, 'module_%s.txt' % ci), 'w') as OUT:
-            print >> OUT, '\n'.join('%s\t%s\t%f\t%s' % e for e in output_edges)
+        ## only print-out networks for modules that have a real edge between them above cutoff
+        if len(output_edges) > 0:
+            with open(os.path.join(args.output_dir, 'module_%s.txt' % ci), 'w') as OUT:
+                print >> OUT, '\n'.join('%s\t%s\t%f\t%s' % e for e in output_edges)
