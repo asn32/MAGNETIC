@@ -38,7 +38,7 @@ def proc_file(input_file, edges, d0_genes, d1_genes, amax, i, output_dir, n_boot
 
     n_d0 = sum(len(v) for v in d0_genes.values())
     n_d1 = sum(len(v) for v in d1_genes.values())
-    input_data = np.fromfile(input_file, dtype=np.float64).reshape((n_d0, n_d1))
+    input_data = np.fromfile(input_file, dtype=np.float64).reshape((n_d0, n_d1)) ## throws a cannot reshape error
     ## this line could be problematic. Since not all genes make it through to the input file, which is the Corr. mat
 
     d0_egenes = {g0 for g0,g1 in edges}

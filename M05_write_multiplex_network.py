@@ -48,8 +48,7 @@ def main():
 
         mmaps[(d1,d2)] = np.memmap(input_file, dtype=np.float64, ## reads e_value matrix in to memmap format
                                    mode='r', shape=(len(labels[d1]), len(labels[d2])))
-                                   ## potentially problematic, given that len(labels[d1]) and len(labels[d2]) are
-                                   ## the wrong dimension. it should be a symmetric e-value matrix. 
+                                   ## Resicnded: Should work because data is loaded w/ correct dimensions
 
 
         ## creates map between data-type pair and enrichment matrix (e_values), reads enrichment matrix as memmap

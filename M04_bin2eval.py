@@ -48,7 +48,7 @@ def main():
 
     all_evals = [max(neg_enr[0][1], 0.5)]
 
-    ## enforce monotonicity, set to max-value 
+    ## enforce monotonicity, set to max-value, or 0.5 COR is greater
     for b,e in neg_enr[1:]:
         all_evals.append(max(e, all_evals[-1]))
     all_evals = all_evals[::-1]
@@ -59,19 +59,22 @@ def main():
 
     d_evalues = np.log(all_evals)
 
-    zero_val = d_evalues[bins == 0.0].mean()
+    zero_val = d_evalues[bins == 0.0].mean() ## mean enrichment for all R=0, for that specific data-combo
 
-    input_data = np.fromfile(matrix_file, dtype=np.float64)
+    input_data = np.fromfile(matrix_file, dtype=np.float64) ## load as linear array
 
     print "Loaded correlation matrix"
-    
+
+    ## bin the values based linearlly
+    ## for each entry in the matrix
     for i in xrange(input_data.size):
         if input_data[i] < 0.0:
             input_data[i] = d_evalues[(bins < input_data[i]).sum()]
         elif input_data[i] > 0.0:
-            input_data[i] = d_evalues[(bins <= input_data[i]).sum() - 1]
+            ## if it's greater than 0
+            input_data[i] = d_evalues[(bins <= input_data[i]).sum() - 1] ## cumulative enrichemnt score based on bin
         else:
-            input_data[i] = zero_val
+            input_data[i] = zero_val ## otherwise assign it the '0' enrichment score.
 
     with open(output_file, 'wb') as OUT:
         input_data.tofile(OUT)

@@ -19,14 +19,30 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    ## issue here is that label files are not being loaded correctly
+    ## used for loading and getting info.
+    ## replace with working label file reader snippet from M04
     labels = dict()
-    for label_file in args.labels:
-        ## Changed [2] to [1].split('.')[0] based on reading in original TSVs.
-        d1 = os.path.basename(label_file).split('_')[1].split('.')[0]
+    for label_file in M02_labels:
+        d1 = os.path.basename(label_file[:-4]).split('_')[1] ## get the data-type
         with open(label_file) as f:
-            labels[d1] = {line.strip():i for i,line in enumerate(f)}
+            rdr = csv.reader(f, delimiter='\t')
+            rdr.next()
+            labels[d1] = {r[0]:i for i,r in enumerate(rdr)}
 
     label_u = sorted(reduce(set.union, labels.values(), set()))
+
+
+    labels = dict()
+    for label_file in M02_labels:
+        d1 = os.path.basename(label_file[:-4]).split('_')[1] ## get the data-type
+        with open(label_file) as f:
+            rdr = csv.reader(f, delimiter='\t')
+            rdr.next()
+            labels[d1] = {r[0]:i for i,r in enumerate(rdr)}
+
+
+
 
 
     mmaps = dict()

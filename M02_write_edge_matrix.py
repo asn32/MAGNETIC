@@ -60,8 +60,8 @@ if __name__ == '__main__':
         n_d2 = len(labels2)
         data2 = np.memmap(dat_2, mode='r', dtype=np.float64, shape=(n_d2, len(h2)))
 
-        h_int = set(h1) & set(h2) ## get the gene intersection, not alpha sorted, just used as reference
-        h1_idx = np.array([(c in h_int) for c in h1]) ## get logical index for genes 
+        h_int = set(h1) & set(h2) ## get the patient intersection, not alpha sorted, just used as reference
+        h1_idx = np.array([(c in h_int) for c in h1]) ## get logical index for patients 
         h2_idx = np.array([(c in h_int) for c in h2])
 
         ## they have to be the same shape.
@@ -82,10 +82,8 @@ if __name__ == '__main__':
             subsample = np.arange(data1.shape[1]) #slice(None), bugged 
 
         
-        ## Index those columns out
-        ## np.any performs logical OR'ing across 1 --> rows
-        ## !=0 --> all nonzero values --> True.  
-        ## !=0 --> remove any rows with all zeroes in them i.e remove any genes that have 0 across the subsample
+
+        ## Np.any logical indexing across axis (x=1 or gene features)
         nz1 = np.any(data1[:, subsample] != 0.0, 1)
         nz2 = np.any(data2[:, subsample] != 0.0, 1)
 
