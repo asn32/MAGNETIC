@@ -124,6 +124,7 @@ if __name__ == '__main__':
         clusters = args.clusters
 
 
+    ## iterate over cluster files
     for cluster_file in clusters:
         with open(cluster_file) as f:
             rdr = csv.reader(f, delimiter='\t')

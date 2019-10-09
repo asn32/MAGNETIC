@@ -21,7 +21,8 @@ if __name__ == '__main__':
 
     labels = dict()
     for label_file in args.labels:
-        d1 = os.path.basename(label_file).split('_')[2]
+        ## Changed [2] to [1].split('.')[0] based on reading in original TSVs.
+        d1 = os.path.basename(label_file).split('_')[1].split('.')[0]
         with open(label_file) as f:
             labels[d1] = {line.strip():i for i,line in enumerate(f)}
 
@@ -33,13 +34,13 @@ if __name__ == '__main__':
         d1,d2 = os.path.basename(input_file).split('_')[0].split('-')
 
         mmaps[(d1,d2)] = np.memmap(input_file, dtype=np.float32,
-                                   mode='r', shape=(len(labels[d1]), len(labels[d2])))
+                                   mode='r', shape=(len(labels[d1]), len(labels[d2]))) ## potential problem here too
 
     dtypes = sorted(reduce(set.union, mmaps, set()))
 
     with open(args.modules) as f:
         rdr = csv.reader(f, delimiter='\t')
-        modules = [row[1:] for row in rdr]
+        modules = [row[1:] for row in rdr] ## get the module information
 
 
     for ci,module in enumerate(modules):
