@@ -23,7 +23,7 @@ if __name__ == '__main__':
     ## used for loading and getting info.
     ## replace with working label file reader snippet from M04
     labels = dict()
-    for label_file in M02_labels:
+    for label_file in args.labels:
         d1 = os.path.basename(label_file[:-4]).split('_')[1] ## get the data-type
         with open(label_file) as f:
             rdr = csv.reader(f, delimiter='\t')
@@ -31,19 +31,6 @@ if __name__ == '__main__':
             labels[d1] = {r[0]:i for i,r in enumerate(rdr)}
 
     label_u = sorted(reduce(set.union, labels.values(), set()))
-
-
-    labels = dict()
-    for label_file in M02_labels:
-        d1 = os.path.basename(label_file[:-4]).split('_')[1] ## get the data-type
-        with open(label_file) as f:
-            rdr = csv.reader(f, delimiter='\t')
-            rdr.next()
-            labels[d1] = {r[0]:i for i,r in enumerate(rdr)}
-
-
-
-
 
     mmaps = dict()
     for input_file in args.input:
