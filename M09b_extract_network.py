@@ -36,7 +36,7 @@ if __name__ == '__main__':
     for input_file in args.input:
         d1,d2 = os.path.basename(input_file).split('_')[0].split('-')
 
-        mmaps[(d1,d2)] = np.memmap(input_file, dtype=np.float32,
+        mmaps[(d1,d2)] = np.memmap(input_file, dtype=np.float64,
                                    mode='r', shape=(len(labels[d1]), len(labels[d2]))) ## potential problem here too
 
     dtypes = sorted(reduce(set.union, mmaps, set()))
