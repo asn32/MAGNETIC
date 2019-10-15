@@ -110,7 +110,7 @@ if __name__ == '__main__':
     parser.add_argument('--runs', type=int, default=100)
     parser.add_argument('--seed', type=int, default=None)
 
-    parser.add_argument('--i', type=int, default=None)
+    parser.add_argument('--i', type=int, default=-1)
     #parser.add_argument('--i_range_min',type=int,default=None) 
 
     ## Modules after this value will be iterativley brute-forced 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
     if args.seed is not None:
         np.random.seed(args.seed)
 
-    if args.i is not None:
+    if args.i !=-1:
         clusters = [sorted(args.clusters,
                            key=lambda fn: int(fn[:-4].split('_')[-1]))[args.i]]
     else:
@@ -156,6 +156,8 @@ if __name__ == '__main__':
         ix = (data == -9999).sum(0) == 0 ## sum across
         h = [c for i,c in enumerate(h) if ix[i]]
         data = data[:, ix]
+
+        print "Determining best u value"
 
         if n_urows < 200: ## if there are only a few edges, just try every combination w/ brute_force ## max 2min per process
             results = [brute_force(data, n_urows, rrows)]
