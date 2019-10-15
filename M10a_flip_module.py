@@ -157,7 +157,7 @@ if __name__ == '__main__':
         h = [c for i,c in enumerate(h) if ix[i]]
         data = data[:, ix]
 
-        if n_urows < 400: ## if there are only a few edges, just try every combination w/ brute_force ## max 2min per process
+        if n_urows < 200: ## if there are only a few edges, just try every combination w/ brute_force ## max 2min per process
             results = [brute_force(data, n_urows, rrows)]
         else:
             results = []
