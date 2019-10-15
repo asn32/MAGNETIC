@@ -130,57 +130,57 @@ if __name__ == '__main__':
     print clusters
 
 
-    ## iterate over cluster files
-    for cluster_file in clusters:
-        with open(cluster_file) as f:
-            rdr = csv.reader(f, delimiter='\t')
-            h = rdr.next()[1:]
-            rows = list(rdr)
+    # ## iterate over cluster files
+    # for cluster_file in clusters:
+    #     with open(cluster_file) as f:
+    #         rdr = csv.reader(f, delimiter='\t')
+    #         h = rdr.next()[1:]
+    #         rows = list(rdr)
 
-        lbls = [row[0] for row in rows] ## gets each gene-data pair
+    #     lbls = [row[0] for row in rows] ## gets each gene-data pair
 
-        urows = dict()
-        rrows = []
+    #     urows = dict()
+    #     rrows = []
 
-        for i,row in enumerate(rows):
-            urow = tuple(row[1:])
-            if urow not in urows:
-                urows[urow] = len(urows)
-            rrows.append(urows[urow])
+    #     for i,row in enumerate(rows):
+    #         urow = tuple(row[1:])
+    #         if urow not in urows:
+    #             urows[urow] = len(urows)
+    #         rrows.append(urows[urow])
 
-        data = np.array([[float(v) if v != 'NA' else -9999. for v in row[1:]]
-                         for row in rows])
-        rrows = np.array(rrows)
-        n_urows = len(urows)
+    #     data = np.array([[float(v) if v != 'NA' else -9999. for v in row[1:]]
+    #                      for row in rows])
+    #     rrows = np.array(rrows)
+    #     n_urows = len(urows)
 
-        ix = (data == -9999).sum(0) == 0 ## sum across
-        h = [c for i,c in enumerate(h) if ix[i]]
-        data = data[:, ix]
+    #     ix = (data == -9999).sum(0) == 0 ## sum across
+    #     h = [c for i,c in enumerate(h) if ix[i]]
+    #     data = data[:, ix]
 
-        print "Determining best u value"
+    #     print "Determining best u value"
 
-        if n_urows < 300: ## if there are only a few edges, just try every combination w/ brute_force ## max 2min per process
-            results = [brute_force(data, n_urows, rrows)]
-        else:
-            results = []
+    #     if n_urows < 300: ## if there are only a few edges, just try every combination w/ brute_force ## max 2min per process
+    #         results = [brute_force(data, n_urows, rrows)]
+    #     else:
+    #         results = []
 
-            for k in range(args.trials): ## Simulated annealing with mhmc style rejection ratio 
-                r = (-1)**np.random.randint(0, 2, n_urows)[rrows]
+    #         for k in range(args.trials): ## Simulated annealing with mhmc style rejection ratio 
+    #             r = (-1)**np.random.randint(0, 2, n_urows)[rrows]
 
-                datac = data * r[:, None]
+    #             datac = data * r[:, None]
 
-                # results.append(greedy(n_urows))
-                results.append(mhmc(datac, n_urows, rrows, args.runs) * r)
-                # results.append(bounded_bfs(datac, n_urows, r) * r)
+    #             # results.append(greedy(n_urows))
+    #             results.append(mhmc(datac, n_urows, rrows, args.runs) * r)
+    #             # results.append(bounded_bfs(datac, n_urows, r) * r)
 
-        best_i = min(results, key=lambda i: feval(data, i))
-        print len(set(map(lambda i: feval(data, i), results))), feval(data, best_i)
+    #     best_i = min(results, key=lambda i: feval(data, i))
+    #     print len(set(map(lambda i: feval(data, i), results))), feval(data, best_i)
 
-        output_file = os.path.join(args.output_dir, os.path.basename(cluster_file)[:-4])
-        if args.seed is not None:
-            output_file += '_{}.dat'.format(args.seed)
-        else:
-            output_file += '.dat'
+    #     output_file = os.path.join(args.output_dir, os.path.basename(cluster_file)[:-4])
+    #     if args.seed is not None:
+    #         output_file += '_{}.dat'.format(args.seed)
+    #     else:
+    #         output_file += '.dat'
 
-        with open(output_file, 'w') as OUT:
-            best_i.astype(int).tofile(OUT)
+    #     with open(output_file, 'w') as OUT:
+    #         best_i.astype(int).tofile(OUT)
