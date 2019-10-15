@@ -43,7 +43,7 @@ def mhmc(datac, n_urows, rrows, n_runs):
                 if np.random.random() < np.exp((current_score - new_score) / T):
                     current_score = new_score
                 else:
-                    current_i[j] *= -1
+                    current_i[j] *= -1 ## or flip back to previous 
 
     return best_i[rrows]
 
@@ -111,6 +111,10 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=None)
 
     parser.add_argument('--i', type=int, default=None)
+    #parser.add_argument('--i_range_min',type=int,default=None) 
+
+    ## Modules after this value will be iterativley brute-forced 
+    ## in a long running thread. 
 
     args = parser.parse_args()
 
@@ -122,6 +126,8 @@ if __name__ == '__main__':
                            key=lambda fn: int(fn[:-4].split('_')[-1]))[args.i]]
     else:
         clusters = args.clusters
+    
+    print clusters
 
 
     ## iterate over cluster files
@@ -131,7 +137,7 @@ if __name__ == '__main__':
             h = rdr.next()[1:]
             rows = list(rdr)
 
-        lbls = [row[0] for row in rows] ## get label files
+        lbls = [row[0] for row in rows] ## gets each gene-data pair
 
         urows = dict()
         rrows = []
@@ -147,16 +153,16 @@ if __name__ == '__main__':
         rrows = np.array(rrows)
         n_urows = len(urows)
 
-        ix = (data == -9999).sum(0) == 0
+        ix = (data == -9999).sum(0) == 0 ## sum across
         h = [c for i,c in enumerate(h) if ix[i]]
         data = data[:, ix]
 
-        if n_urows < 24:
+        if n_urows < 400: ## if there are only a few edges, just try every combination w/ brute_force ## max 2min per process
             results = [brute_force(data, n_urows, rrows)]
         else:
             results = []
 
-            for k in range(args.trials):
+            for k in range(args.trials): ## Simulated annealing with mhmc style rejection ratio 
                 r = (-1)**np.random.randint(0, 2, n_urows)[rrows]
 
                 datac = data * r[:, None]

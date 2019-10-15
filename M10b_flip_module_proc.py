@@ -48,7 +48,7 @@ if __name__ == '__main__':
             continue
 
         for dat_file in dat_files:
-            d = np.fromfile(dat_file, dtype=int)
+            d = np.fromfile(dat_file, dtype=int) ## load files
             cluster_is.add(tuple(d.tolist()))
 
 
