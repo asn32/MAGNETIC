@@ -15,9 +15,9 @@ from S00_common_io import read_input
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--cluster_edges', nargs='+')
-    parser.add_argument('--clusters', nargs='+')
-    parser.add_argument('--ref_clusters', nargs='*')
+    parser.add_argument('--cluster_edges', nargs='+') ## Edge files i.e modules.txt
+    parser.add_argument('--clusters', nargs='+') ## module_data files. 
+    parser.add_argument('--ref_clusters', nargs='*') ## u_vector dats 
     parser.add_argument('--output')
 
     parser.add_argument('--strict', action='store_true')

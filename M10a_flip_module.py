@@ -159,7 +159,7 @@ if __name__ == '__main__':
 
         print "Determining best u value"
 
-        if n_urows < 100: ## if there are only a few edges, just try every combination w/ brute_force ## max 2min per process
+        if n_urows < 20: ## if there are only a few edges, just try every combination w/ brute_force ## max 2min per process
             results = [brute_force(data, n_urows, rrows)]
         else:
             results = []
